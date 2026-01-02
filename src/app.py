@@ -1,0 +1,4 @@
+from transformers.tools.base import launch_gradio_demo
+from sentiment_analysis import SentimentAnalysisTool
+
+launch_gradio_demo(SentimentAnalysisTool)
