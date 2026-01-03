@@ -11,35 +11,27 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      
-      - name: Install dependencies
-        run: |
-          if [ -f src/requirements.txt ]; then
-            pip install -r src/requirements.txt
-          fi
-      
-      - name: Deploy to Hugging Face
+      - name: Deploy to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          pip install huggingface_hub
-          
-          # Clone or update HF Space
-          git clone https://huggingface.co/spaces/Chris4K/sentiment-analysis-tool space_repo || true
-          cd space_repo || git clone https://$HF_TOKEN@huggingface.co/spaces/Chris4K/sentiment-analysis-tool .
-          
-          # Copy files
-          cp -r ../src/* .
+          # Install only huggingface_hub (minimal dependency)
+          pip install -q huggingface_hub
           
           # Configure git
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
           
-          # Commit and push
+          # Clone HF Space
+          git clone https://huggingface.co/spaces/Chris4K/sentiment-analysis-tool hf_space
+          cd hf_space
+          
+          # Copy all source files (HF will build dependencies there)
+          cp -r ../src/* .
+          cp -r ../docs . || true
+          cp ../README.md . || true
+          
+          # Commit and push to HF Space
           git add .
-          git commit -m "Deploy from GitHub" || echo "No changes"
-          git push https://$HF_TOKEN@huggingface.co/spaces/Chris4K/sentiment-analysis-tool main
+          git commit -m "Deploy from GitHub: ${{ github.sha }}" || echo "No changes to deploy"
+          git push https://oauth2:$HF_TOKEN@huggingface.co/spaces/Chris4K/sentiment-analysis-tool main
