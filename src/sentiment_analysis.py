@@ -1,13 +1,12 @@
 import requests
 import gradio as gr
 from transformers import pipeline
-from transformers import Tool
 
-class SentimentAnalysisTool(Tool):
+class SentimentAnalysisTool:
     name = "sentiment_analysis"
     description = "This tool analyses the sentiment of a given text input."
 
-    inputs = ["text"]  # Adding an empty list for inputs
+    inputs = ["text"]
     outputs = ["json"]
     
     model_id_1 = "nlptown/bert-base-multilingual-uncased-sentiment"
@@ -41,6 +40,3 @@ class SentimentAnalysisTool(Tool):
 
 # Create an instance of the SentimentAnalysisTool class
 sentiment_analysis_tool = SentimentAnalysisTool()
-
-# Create the Gradio interface
-gr.Interface(fn=sentiment_analysis_tool, inputs=sentiment_analysis_tool.inputs, outputs=sentiment_analysis_tool.outputs).launch()
